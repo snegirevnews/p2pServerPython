@@ -157,5 +157,4 @@ class MyFactory(Factory):
         return MyProtocol(self, "GETHELLO", "LISTENER")
 
 def gotProtocol(p):
-    print("OK")
     p.send_HELLO()
