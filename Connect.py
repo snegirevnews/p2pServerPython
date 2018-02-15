@@ -23,7 +23,7 @@ def connect():
     # point = TCP4ClientEndpoint(reactor, host, int(port))
     # d = connectProtocol(point, MyProtocol(ncfactory, "SENDHELLO", "SPEAKER"))
     # d.addCallback(p2pClient.gotProtocol)
-    # reactor.run()
+    reactor.run()
 
 if __name__ == "__main__":
     connect()
