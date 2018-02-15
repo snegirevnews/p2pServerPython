@@ -15,9 +15,7 @@ def make_envelope(msgtype, msg, nodeid): #использую
     msg['nodeid'] = nodeid
     msg['nonce'] =  nonce()
     data = json.dumps(msg) #сериализуем
-    sign = hmac.new(nodeid, data) #подписываем
     envelope = {'data': msg,
-                'sign': sign.hexdigest(),
                 'msgtype': msgtype}
     return json.dumps(envelope) # еще раз сериализуем
 
@@ -52,11 +50,12 @@ def read_envelope(message): # возвращаю в формат json
 
 def read_message(message): # разбираю пришедшее сообщение
     envelope = json.loads(message)
-    nodeid = str(envelope['data']['nodeid'])
-    signature = str(envelope['sign'])
-    msg = json.dumps(envelope['data'])
-    verify_sign = hmac.new(nodeid, msg)
-    if hmac.compare_digest(verify_sign.hexdigest(), signature):
-        return envelope['data']
-    else:
-        raise InvalidSignatureError
+    # nodeid = str(envelope['data']['nodeid'])
+    # signature = str(envelope['sign'])
+    # msg = json.dumps(envelope['data'])
+    # verify_sign = hmac.new(nodeid, msg)
+    return envelope['data']
+    # if hmac.compare_digest(verify_sign.hexdigest(), signature):
+    #
+    # else:
+    #     raise InvalidSignatureError
