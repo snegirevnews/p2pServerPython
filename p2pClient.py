@@ -44,6 +44,7 @@ class MyProtocol(Protocol):
         for line in data.splitlines():
             line = line.strip()
             envelope = messages.read_envelope(line)
+            print(self.state)
             if self.state in ["GETHELLO", "SENTHELLO"]:
                 if envelope['msgtype'] == 'hello':
                     self.handle_HELLO(line)
@@ -65,6 +66,7 @@ class MyProtocol(Protocol):
 
     def handle_HELLO(self, hello):
         try:
+            print("Получил HELLO")
             hello = messages.read_message(hello)
             self.remote_nodeid = hello['nodeid'] #nodeid того,кто прислал письмо
             if self.remote_nodeid == self.nodeid: #если я  сам себе прислал
