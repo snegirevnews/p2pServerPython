@@ -8,11 +8,11 @@ from p2pClient import MyFactory, MyProtocol
 
 
 def connect():
-    host = "" #адрес сервера
-    port = 0 #порт сервера
+    host = "52.14.170.246" #адрес сервера
+    port = 5005 #порт сервера
 
     try:
-        endpoint = TCP4ServerEndpoint(reactor, 5005)
+        endpoint = TCP4ServerEndpoint(reactor, 5006)
         ncfactory = MyFactory()
         endpoint.listen(ncfactory)
         print("LISTEN")
@@ -20,10 +20,10 @@ def connect():
         print("[!] Address in use")
         raise SystemExit
 
-    point = TCP4ClientEndpoint(reactor, host, int(port))
-    d = connectProtocol(point, MyProtocol(ncfactory, "SENDHELLO", "SPEAKER"))
-    d.addCallback(p2pClient.gotProtocol)
-    reactor.run()
+    # point = TCP4ClientEndpoint(reactor, host, int(port))
+    # d = connectProtocol(point, MyProtocol(ncfactory, "SENDHELLO", "SPEAKER"))
+    # d.addCallback(p2pClient.gotProtocol)
+    # reactor.run()
 
 if __name__ == "__main__":
     connect()
