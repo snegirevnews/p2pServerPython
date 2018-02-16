@@ -1,9 +1,7 @@
-import hmac
 import json
 import cryptotools
 
 nonce = lambda: cryptotools.generate_nodeid()
-incr_nonce = lambda env: format(int(env["nonce"], 16) + 1, 'x')
 
 class InvalidSignatureError(Exception):
     pass
@@ -14,7 +12,6 @@ class InvalidNonceError(Exception):
 def make_envelope(msgtype, msg, nodeid): #использую
     msg['nodeid'] = nodeid
     msg['nonce'] =  nonce()
-    data = json.dumps(msg) #сериализуем
     envelope = {'data': msg,
                 'msgtype': msgtype}
     return json.dumps(envelope) # еще раз сериализуем
@@ -43,19 +40,17 @@ def create_pong(nodeid):
     msg = {}
     return make_envelope("pong", msg, nodeid)
 
+def create_block(nodeid): #использую
+    msg = {'block': "OK"}
+    return make_envelope("block", msg, nodeid)
+
 # -------
 
 def read_envelope(message): # возвращаю в формат json
+    message = message.decode('utf8')
     return json.loads(message)
 
 def read_message(message): # разбираю пришедшее сообщение
+    message = message.decode('utf8')
     envelope = json.loads(message)
-    # nodeid = str(envelope['data']['nodeid'])
-    # signature = str(envelope['sign'])
-    # msg = json.dumps(envelope['data'])
-    # verify_sign = hmac.new(nodeid, msg)
     return envelope['data']
-    # if hmac.compare_digest(verify_sign.hexdigest(), signature):
-    #
-    # else:
-    #     raise InvalidSignatureError

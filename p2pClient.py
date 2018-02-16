@@ -60,9 +60,9 @@ class MyProtocol(Protocol):
 
     def send_HELLO(self):
         hello = messages.create_hello(self.nodeid, self.VERSION)
-        print("SEND_HELLO:", self.nodeid, "to", self.remote_ip)
-        self.transport.write(hello + "\n")
+        self.sendLine(hello+ "\n")
         self.state = "SENTHELLO" #состояние SENTHELLO
+        print("SEND_HELLO:", self.nodeid, "to", self.remote_ip)
 
     def handle_HELLO(self, hello):
         try:
@@ -75,8 +75,9 @@ class MyProtocol(Protocol):
             else: #если я не сам себе прислал
                 if self.state == "GETHELLO": #если я в состоянии GETHELLO
                     my_hello = messages.create_hello(self.nodeid, self.VERSION) #собираю свое Hello- сообщение
-                    self.transport.write(my_hello + "\n") #отправляю
+                    self.sendLine(my_hello + "\n") #отправляю
                 self.add_peer() # добавить данный пир в List
+                print(self.factory.peers_protocol)
                 self.state = "READY" #ставлю себе состояние READY
                 # self.print_peers()
                 # self.write(messages.create_ping(self.nodeid))
@@ -92,14 +93,15 @@ class MyProtocol(Protocol):
     def add_peer(self): #добавление Пира в Лист
         entry = (self.remote_ip, self.kind, time())
         self.factory.peers[self.remote_nodeid] = entry
+        self.factory.peers_protocol[self.remote_nodeid] = self
 
     def send_ADDR(self): #Рассказываю данному ноду о моих пирах.
-        print("Telling " + self.remote_nodeid + " about my peers")
         peers = self.factory.peers
         listeners = [(n, peers[n][0], peers[n][1], peers[n][2])
                      for n in peers]
         addr = messages.create_addr(self.nodeid, listeners)
-        self.write(addr)
+        self.sendLine(addr)
+        print("Telling " + self.remote_nodeid + " about my peers")
 
     def handle_ADDR(self, addr):
         try:
@@ -129,12 +131,12 @@ class MyProtocol(Protocol):
     def send_PING(self):
         print("PING   to", self.remote_nodeid, "at", self.remote_ip)
         ping = messages.create_ping(self.nodeid)
-        self.write(ping)
+        self.sendLine(ping)
 
     def handle_PING(self, ping):
         if messages.read_message(ping):
             pong = messages.create_pong(self.nodeid)
-            self.write(pong)
+            self.sendLine(pong)
 
     def handle_PONG(self, pong):
         pong = messages.read_message(pong)
@@ -142,12 +144,16 @@ class MyProtocol(Protocol):
         addr, kind = self.factory.peers[self.remote_nodeid][:2]
         self.factory.peers[self.remote_nodeid] = (addr, kind, time())
 
+    def sendLine(self, line):
+        self.transport.write(line.encode('utf8'))
+
 class MyFactory(Factory):
     def __init__(self):
         pass
 
     def startFactory(self):
         self.peers = {}
+        self.peers_protocol = {}
         self.numProtocols = 0
         self.nodeid = cryptotools.generate_nodeid()[:10]
         print(" [ ] NODEID:", self.nodeid)
@@ -158,5 +164,7 @@ class MyFactory(Factory):
     def buildProtocol(self, addr):
         return MyProtocol(self, "GETHELLO", "LISTENER")
 
+
 def gotProtocol(p):
     p.send_HELLO()
+

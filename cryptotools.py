@@ -1,5 +1,3 @@
-# rename to cryptotools
-
 import os
 import hashlib
 

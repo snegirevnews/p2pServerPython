@@ -6,14 +6,13 @@ from twisted.internet.endpoints import connectProtocol
 import p2pClient
 from p2pClient import MyFactory, MyProtocol
 
-
 def connect():
-    host = "52.14.170.246" #адрес сервера
-    port = 5005 #порт сервера
+    # host = "52.14.170.246" #адрес сервера
+    # port = 5005 #порт сервера
 
     try:
-        endpoint = TCP4ServerEndpoint(reactor, 5006)
         ncfactory = MyFactory()
+        endpoint = TCP4ServerEndpoint(reactor, 5006)
         endpoint.listen(ncfactory)
         print("LISTEN")
     except CannotListenError:
